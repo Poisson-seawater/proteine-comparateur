@@ -1,0 +1,988 @@
+<html><head><base href="https://protein-comparator.com/" />
+<meta charset="UTF-8">
+<title>Protein Price Comparator</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f0f5ff;
+  }
+
+  .dashboard {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+
+  .calculator {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  .top-deals {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .deal-card {
+    background: #e8f5e9;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+    transition: transform 0.2s;
+    max-width: 100%;
+  }
+
+  .deal-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .deal-card.best-deal {
+    background: #fff8e1;
+    border-left: 4px solid #f44336;
+  }
+
+  .deal-card .discount-badge {
+    background: #f44336;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-left: 10px;
+  }
+
+  .discount-savings {
+    color: #f44336;
+    font-weight: bold;
+    margin-top: 4px;
+  }
+
+  .input-group {
+    margin: 15px 0;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: bold;
+  }
+
+  input {
+    width: calc(100% - 100px);
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  select {
+    width: 90px;
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    margin-left: 5px;
+  }
+
+  .input-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  button {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+  }
+
+  button:hover {
+    background: #45a049;
+  }
+
+  .results {
+    margin-top: 20px;
+    padding: 15px;
+    background: #e8f5e9;
+    border-radius: 4px;
+  }
+
+  .protein-item {
+    padding: 10px;
+    margin: 5px 0;
+    border-left: 4px solid #4CAF50;
+    background: white;
+  }
+
+  .best-value {
+    border-left: 4px solid #f44336;
+    background: #fff8e1;
+  }
+
+  .saved-items {
+    margin-top: 20px;
+  }
+
+  @keyframes highlight {
+    0% { background-color: #fff8e1; }
+    50% { background-color: #ffeb3b; }
+    100% { background-color: #fff8e1; }
+  }
+
+  .highlight {
+    animation: highlight 1s ease-in-out;
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .nav-tab {
+    padding: 10px 20px;
+    background: #ddd;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+  }
+
+  .nav-tab.active {
+    background: #4CAF50;
+    color: white;
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .search-box {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  .search-results {
+    margin-top: 20px;
+  }
+
+  .saved-items {
+    display: none;
+  }
+
+  .show-saved {
+    margin: 10px 0;
+    background: #666;
+  }
+
+  .store-suggestions {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    width: calc(100% - 40px);
+    z-index: 1000;
+    display: none;
+  }
+
+  .store-suggestion {
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .store-suggestion:hover {
+    background: #f0f0f0;
+  }
+
+  #proteinBaseWeight {
+    width: 60px;
+    margin-left: 5px;
+  }
+
+  #discountPriceField {
+    margin-top: 10px;
+    padding-left: 20px;
+  }
+
+  .expired-discount {
+    opacity: 0.7;
+    text-decoration: line-through;
+  }
+
+  .deals-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .arrow-button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .deals-toggle-text {
+    font-weight: bold;
+    min-width: 200px;
+    text-align: center;
+  }
+
+  .category-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .category-btn {
+    padding: 8px 16px;
+    border: 2px solid #4CAF50;
+    background: white;
+    color: #4CAF50;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .category-btn.active {
+    background: #4CAF50;
+    color: white;
+  }
+
+  .price-input-toggle {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    padding: 5px;
+    background: #f5f5f5;
+    border-radius: 25px;
+  }
+
+  .price-toggle-btn {
+    flex: 1;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .price-toggle-btn.active {
+    background: #4CAF50;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  .action-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .action-buttons button {
+    padding: 5px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .action-buttons button:first-child {
+    background: #4CAF50;
+    color: white;
+  }
+
+  .action-buttons button:last-child {
+    background: #f44336;
+    color: white;
+  }
+
+  .action-buttons button:hover {
+    opacity: 0.9;
+  }
+
+  .success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transform: translateX(200%);
+    transition: transform 0.3s ease-out;
+    z-index: 1000;
+  }
+
+  .success-message.show {
+    transform: translateX(0);
+  }
+
+  .input-group {
+    transition: all 0.3s ease;
+  }
+
+  .input-group:focus-within {
+    transform: translateX(5px);
+  }
+
+  .calculator button {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .calculator button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255,255,255,.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+  }
+
+  .calculator button:active::after {
+    animation: ripple 1s ease-out;
+  }
+
+  @keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(100, 100);
+        opacity: 0;
+    }
+}
+</style>
+</head>
+<body>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchTab('deals')">Best Deals</div>
+    <div class="nav-tab" onclick="switchTab('calculator')">Calculator</div>
+    <div class="nav-tab" onclick="switchTab('search')">Search</div>
+  </div>
+
+  <div id="dealsTab" class="tab-content active">
+    <div class="dashboard">
+      <h1>Top Protein Deals</h1>
+      <div class="deals-toggle">
+        <button class="arrow-button" onclick="toggleDealsView('prev')">←</button>
+        <div class="deals-toggle-text" id="dealsViewText">All Deals</div>
+        <button class="arrow-button" onclick="toggleDealsView('next')">→</button>
+      </div>
+      <div class="category-toggle">
+        <button onclick="setDealsCategory('all')" class="category-btn active">All Products</button>
+        <button onclick="setDealsCategory('cheese')" class="category-btn">Cheese</button>
+        <button onclick="setDealsCategory('vegan')" class="category-btn">Vegan</button>
+      </div>
+      <div class="top-deals" id="topDeals">
+        <!-- Top deals will be displayed here -->
+      </div>
+    </div>
+  </div>
+
+  <div id="calculatorTab" class="tab-content">
+    <div class="calculator">
+      <h2>Add New Product</h2>
+      <p>Compare protein sources to find the best value!</p>
+
+      <div class="input-group">
+        <label for="productName">Product Name:</label>
+        <input type="text" id="productName" placeholder="e.g., Chicken Breast">
+
+        <label for="store">Store:</label>
+        <input type="text" id="store" placeholder="e.g., Walmart" oninput="showStoreSuggestions()">
+        <div class="store-suggestions" id="storeSuggestions"></div>
+
+        <div class="input-group">
+          <label for="protein">Protein Content:</label>
+          <div class="input-with-unit">
+            <input type="number" id="protein" placeholder="31">
+            <select id="proteinUnit">
+              <option value="g">g/100g</option>
+              <option value="custom">g per custom weight</option>
+              <option value="%">%</option>
+            </select>
+            <input type="number" id="proteinBaseWeight" placeholder="100" style="display: none">
+          </div>
+
+          <div class="price-input-toggle">
+            <button class="price-toggle-btn active" onclick="updatePriceInputs('per100g')">Price per 100g</button>
+            <button class="price-toggle-btn" onclick="updatePriceInputs('total')">Total Price & Weight</button>
+          </div>
+
+          <div id="per100gPriceInput">
+            <label for="pricePer100g">Price per 100g ($):</label>
+            <input type="number" id="pricePer100g" step="0.01" placeholder="2.99">
+          </div>
+
+          <div id="totalPriceInputs" style="display: none;">
+            <label for="price">Regular Price ($):</label>
+            <input type="number" id="price" step="0.01" placeholder="10.99">
+
+            <label for="weight">Weight (grams):</label>
+            <input type="number" id="weight" placeholder="454">
+          </div>
+
+          <div class="input-group">
+            <label for="isDiscounted">
+              <input type="checkbox" id="isDiscounted" onchange="toggleDiscountPrice()"> On Sale
+            </label>
+            
+            <div id="discountPriceField" style="display: none;">
+              <label for="discountPrice">Discount Price per 100g ($):</label>  
+              <input type="number" id="discountPrice" step="0.01" placeholder="1.99">
+            </div>
+          </div>
+
+          <label for="category">Category:</label>
+          <select id="category">
+            <option value="other">Other</option>
+            <option value="cheese">Cheese</option>
+            <option value="vegan">Vegan</option>
+          </select>
+        </div>
+
+        <button onclick="calculateValue()">Calculate Value</button>
+      </div>
+
+      <div class="results" id="results">
+        <!-- Results will appear here -->
+      </div>
+
+      <button class="show-saved" onclick="toggleSavedItems()">Show/Hide Saved Comparisons</button>
+      <div class="saved-items" id="savedItems">
+        <h2>Saved Comparisons</h2>
+        <!-- Saved items will appear here -->
+      </div>
+    </div>
+  </div>
+
+  <div id="searchTab" class="tab-content">
+    <div class="calculator">
+      <h2>Search Products</h2>
+      <input type="text" class="search-box" id="searchBox" placeholder="Search for products..." oninput="searchProducts()">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+<script>
+let savedProducts = [];
+let currentDealsView = 'all'; // can be 'all' or 'discounted'
+let currentDealsCategory = 'all'; // can be 'all', 'cheese', or 'vegan'
+let priceInputMode = 'per100g'; // can be 'per100g' or 'total'
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+    
+    document.getElementById(tabName + 'Tab').classList.add('active');
+    document.querySelector(`.nav-tab:nth-child(${tabName === 'deals' ? '1' : tabName === 'calculator' ? '2' : '3'})`).classList.add('active');
+}
+
+function toggleDiscountPrice() {
+  const discountField = document.getElementById('discountPriceField');
+  discountField.style.display = document.getElementById('isDiscounted').checked ? 'block' : 'none';
+}
+
+function calculateValue() {
+    const productName = document.getElementById('productName').value;
+    const store = document.getElementById('store').value;
+    const proteinContent = parseFloat(document.getElementById('protein').value);
+    const proteinUnit = document.getElementById('proteinUnit').value;
+    const proteinBaseWeight = parseFloat(document.getElementById('proteinBaseWeight').value || 100);
+    const category = document.getElementById('category').value;
+    
+    let finalPrice, finalWeight;
+
+    // Handle different price input modes
+    if (priceInputMode === 'per100g') {
+        const pricePer100g = parseFloat(document.getElementById('pricePer100g').value);
+        if (isNaN(pricePer100g)) {
+            alert('Please enter a valid price per 100g');
+            return;
+        }
+        // Assuming 100g as base for calculations when using price per 100g
+        finalWeight = 100;
+        finalPrice = pricePer100g;
+    } else {
+        finalPrice = parseFloat(document.getElementById('price').value);
+        finalWeight = parseFloat(document.getElementById('weight').value);
+        if (isNaN(finalPrice) || isNaN(finalWeight)) {
+            alert('Please enter both total price and weight');
+            return;
+        }
+    }
+
+    // Validation checks
+    if (!productName || !store || isNaN(proteinContent)) {
+        alert('Please fill in all required fields with valid numbers');
+        return;
+    }
+
+    let normalizedProteinContent;
+    if (proteinUnit === '%') {
+        normalizedProteinContent = proteinContent;
+    } else if (proteinUnit === 'custom') {
+        normalizedProteinContent = (proteinContent * 100) / proteinBaseWeight;
+    } else {
+        normalizedProteinContent = proteinContent;
+    }
+
+    const totalProtein = (finalWeight * normalizedProteinContent) / 100;
+    
+    if (isNaN(totalProtein) || totalProtein <= 0) {
+        alert('Invalid protein calculation. Please check your inputs.');
+        return;
+    }
+
+    const pricePer100g = priceInputMode === 'per100g' ? 
+        finalPrice : 
+        (finalPrice / finalWeight) * 100;
+
+    const product = {
+        name: productName,
+        store: store,
+        regularPrice: priceInputMode === 'per100g' ? finalPrice : finalPrice,
+        weight: finalWeight,
+        proteinPer100g: normalizedProteinContent,
+        regularPricePer100gProtein: (pricePer100g / normalizedProteinContent) * 100,
+        regularPricePer100g: pricePer100g,
+        totalProtein: totalProtein,
+        proteinUnit: proteinUnit,
+        category: category
+    };
+
+    if (document.getElementById('isDiscounted').checked) {
+        if (priceInputMode === 'per100g') {
+            product.discountPrice = parseFloat(document.getElementById('discountPrice').value);
+            product.isDiscounted = true;
+        } else {
+            const discountTotal = parseFloat(document.getElementById('discountPrice').value);
+            product.discountPrice = (discountTotal / finalWeight) * 100;
+            product.isDiscounted = true;
+        }
+    }
+
+    savedProducts.push(product);
+    sortProducts();
+    displayResults();
+    displayTopDeals();
+    
+    // Show success message
+    const successMsg = document.createElement('div');
+    successMsg.className = 'success-message';
+    successMsg.textContent = `${productName} has been added successfully!`;
+    document.body.appendChild(successMsg);
+    
+    // Trigger animation
+    setTimeout(() => successMsg.classList.add('show'), 100);
+    
+    // Remove message after delay
+    setTimeout(() => {
+        successMsg.classList.remove('show');
+        setTimeout(() => successMsg.remove(), 300);
+    }, 3000);
+    
+    clearInputs();
+    
+    // Scroll to results
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function setDealsCategory(category) {
+  currentDealsCategory = category;
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`[onclick="setDealsCategory('${category}')"]`).classList.add('active');
+  displayTopDeals();
+}
+
+function sortProducts() {
+    const today = new Date();
+    savedProducts.sort((a, b) => {
+        const priceA = a.isDiscounted && new Date(a.discountEndDate) >= today ? 
+            a.discountPricePer100gProtein : a.regularPricePer100gProtein;
+        const priceB = b.isDiscounted && new Date(b.discountEndDate) >= today ? 
+            b.discountPricePer100gProtein : b.regularPricePer100gProtein;
+        return priceA - priceB;
+    });
+}
+
+function toggleDealsView(direction) {
+  if (direction === 'next') {
+    currentDealsView = currentDealsView === 'all' ? 'discounted' : 'all';
+  } else {
+    currentDealsView = currentDealsView === 'all' ? 'discounted' : 'all';
+  }
+  
+  const textElement = document.getElementById('dealsViewText');
+  textElement.textContent = currentDealsView === 'all' ? 'All Deals' : 'Discount Deals';
+  
+  displayTopDeals();
+}
+
+function displayTopDeals() {
+    const topDealsDiv = document.getElementById('topDeals');
+    topDealsDiv.innerHTML = '';
+    const today = new Date();
+    
+    // Filter products based on category and deals view
+    let validProducts = [...savedProducts];
+    
+    // Apply category filter
+    if (currentDealsCategory !== 'all') {
+        validProducts = validProducts.filter(product => product.category === currentDealsCategory);
+    }
+    
+    // Apply discount/all deals filter
+    if (currentDealsView === 'discounted') {
+        validProducts = validProducts.filter(product => 
+            product.isDiscounted && 
+            product.discountPrice && 
+            new Date(product.discountEndDate) >= today
+        );
+    }
+    
+    // Sort by price per protein
+    validProducts.sort((a, b) => {
+        const priceA = a.isDiscounted && currentDealsView === 'discounted' ? 
+            (a.discountPrice / a.proteinPer100g) : 
+            (a.regularPricePer100g / a.proteinPer100g);
+        const priceB = b.isDiscounted && currentDealsView === 'discounted' ? 
+            (b.discountPrice / b.proteinPer100g) : 
+            (b.regularPricePer100g / b.proteinPer100g);
+        return priceA - priceB;
+    });
+
+    const dealsToShow = Math.min(7, validProducts.length);
+    
+    if (validProducts.length === 0) {
+        topDealsDiv.innerHTML = `
+            <p>No ${currentDealsView === 'discounted' ? 'discounted ' : ''}deals found for 
+               ${currentDealsCategory === 'all' ? 'all products' : currentDealsCategory} category.</p>
+        `;
+        return;
+    }
+
+    for(let i = 0; i < dealsToShow; i++) {
+        const product = validProducts[i];
+        const dealCard = document.createElement('div');
+        dealCard.className = `deal-card ${i === 0 ? 'best-deal' : ''}`;
+        
+        const priceDisplay = product.isDiscounted && currentDealsView === 'discounted' ? 
+            `<div class="discount-price">
+                <span class="discount-badge">SALE</span>
+                $${product.discountPrice.toFixed(2)} per 100g
+             </div>
+             <div class="regular-price">Was: $${product.regularPricePer100g.toFixed(2)} per 100g</div>` :
+            `<div>Price: $${product.regularPricePer100g.toFixed(2)} per 100g</div>`;
+
+        dealCard.innerHTML = `
+            <div class="deal-rank">#${i + 1}</div>
+            <h3>${product.name}</h3>
+            <div class="deal-store">at ${product.store}</div>
+            <div class="deal-category">${product.category}</div>
+            ${priceDisplay}
+            <div class="protein-content">Protein: ${product.proteinPer100g}g per 100g</div>
+            <div class="price-per-protein">
+                Price per gram of protein: 
+                $${((product.isDiscounted && currentDealsView === 'discounted' ? 
+                    product.discountPrice : product.regularPricePer100g) / 
+                    product.proteinPer100g).toFixed(2)}
+            </div>
+        `;
+        
+        topDealsDiv.appendChild(dealCard);
+    }
+}
+
+function displayResults() {
+    const resultsDiv = document.getElementById('savedItems');
+    resultsDiv.innerHTML = '<h2>Saved Comparisons</h2>';
+
+    if (!Array.isArray(savedProducts) || savedProducts.length === 0) {
+        resultsDiv.innerHTML += '<p>No products saved yet.</p>';
+        document.getElementById('results').innerHTML = '';
+        return;
+    }
+
+    savedProducts.forEach((product, index) => {
+        const productDiv = document.createElement('div');
+        productDiv.className = `protein-item ${index === 0 ? 'best-value' : ''}`;
+
+        const totalProtein = product.totalProtein ? product.totalProtein.toFixed(1) : 'N/A';
+        const regularPricePer100g = product.regularPricePer100g ? product.regularPricePer100g.toFixed(2) : 'N/A';
+        const regularPricePer100gProtein = product.regularPricePer100gProtein ? product.regularPricePer100gProtein.toFixed(2) : 'N/A';
+
+        productDiv.innerHTML = `
+            <h3>${product.name}</h3>
+            <p><strong>Store: ${product.store || 'Unknown'}</strong></p>
+            <p>Regular Price: $${product.regularPrice.toFixed(2)}</p>
+            <p>Weight: ${product.weight || 'N/A'}g</p>
+            <p>Protein Content: ${product.proteinPer100g || 'N/A'}${product.proteinUnit === '%' ? '%' : 'g/100g'}</p>
+            <p>Total Protein: ${totalProtein}g</p>
+            <p>Price per 100g: $${regularPricePer100g}</p>
+            <p>Price per 100g of protein: $${regularPricePer100gProtein}</p>
+            <div class="action-buttons">
+                <button onclick="editProduct(${index})">Edit</button>
+                <button onclick="deleteProduct(${index})">Delete</button>
+            </div>
+        `;
+        
+        resultsDiv.appendChild(productDiv);
+    });
+}
+
+function deleteProduct(index) {
+    if (confirm('Are you sure you want to delete this product?')) {
+        savedProducts.splice(index, 1);
+        displayResults();
+        displayTopDeals();
+        searchProducts(); // Refresh search results
+    }
+}
+
+function editProduct(index) {
+    const product = savedProducts[index];
+    
+    // Switch to calculator tab
+    switchTab('calculator');
+    
+    // Fill in the form with product data
+    document.getElementById('productName').value = product.name;
+    document.getElementById('store').value = product.store;
+    document.getElementById('protein').value = product.proteinPer100g;
+    document.getElementById('proteinUnit').value = product.proteinUnit;
+    document.getElementById('category').value = product.category;
+
+    // Set price input mode based on what's available
+    if (product.regularPricePer100g) {
+        updatePriceInputs('per100g');
+        document.getElementById('pricePer100g').value = product.regularPricePer100g;
+    } else {
+        updatePriceInputs('total');
+        document.getElementById('price').value = product.regularPrice;
+        document.getElementById('weight').value = product.weight;
+    }
+
+    // Remove the old product
+    savedProducts.splice(index, 1);
+    displayResults();
+    displayTopDeals();
+}
+
+function clearInputs() {
+    const fields = [
+        'productName',
+        'store',
+        'pricePer100g',
+        'price',
+        'weight',
+        'protein',
+        'proteinUnit',
+        'proteinBaseWeight',
+        'isDiscounted',
+        'discountPrice'
+    ];
+
+    fields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            if (element.type === 'checkbox') {
+                element.checked = false;
+            } else {
+                element.value = '';
+            }
+        }
+    });
+
+    // Reset proteinUnit to default
+    const proteinUnitElement = document.getElementById('proteinUnit');
+    if (proteinUnitElement) {
+        proteinUnitElement.value = 'g';
+    }
+
+    // Hide discount price field
+    const discountPriceField = document.getElementById('discountPriceField');
+    if (discountPriceField) {
+        discountPriceField.style.display = 'none';
+    }
+}
+
+function toggleSavedItems() {
+    const savedItems = document.getElementById('savedItems');
+    savedItems.style.display = savedItems.style.display === 'none' ? 'block' : 'none';
+}
+
+function showStoreSuggestions() {
+    const input = document.getElementById('store');
+    const suggestions = document.getElementById('storeSuggestions');
+    const value = input.value.toLowerCase();
+    
+    if (value.length < 1) {
+        suggestions.style.display = 'none';
+        return;
+    }
+
+    const uniqueStores = [...new Set(savedProducts.map(p => p.store))];
+    const matches = uniqueStores.filter(store => 
+        store.toLowerCase().includes(value)
+    );
+
+    if (matches.length > 0) {
+        suggestions.innerHTML = matches
+            .map(store => `<div class="store-suggestion" onclick="selectStore('${store}')">${store}</div>`)
+            .join('');
+        suggestions.style.display = 'block';
+    } else {
+        suggestions.style.display = 'none';
+    }
+}
+
+function selectStore(store) {
+    document.getElementById('store').value = store;
+    document.getElementById('storeSuggestions').style.display = 'none';
+}
+
+function searchProducts() {
+    const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+    const searchResults = document.getElementById('searchResults');
+    
+    if (searchTerm.length < 2) {
+        searchResults.innerHTML = '';
+        return;
+    }
+
+    const matches = savedProducts.filter(product => 
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.store.toLowerCase().includes(searchTerm)
+    );
+
+    searchResults.innerHTML = matches.map((product) => `
+        <div class="protein-item">
+            <h3>${product.name}</h3>
+            <p><strong>Store: ${product.store}</strong></p>
+            <p>Regular Price: $${product.regularPrice.toFixed(2)}</p>
+            <p>Price per 100g of protein: $${product.regularPricePer100gProtein.toFixed(2)}</p>
+            <p>Price per 100g: $${product.regularPricePer100g.toFixed(2)}</p>
+            <div class="action-buttons">
+                <button onclick="editProduct(${savedProducts.indexOf(product)})">Edit</button>
+                <button onclick="deleteProduct(${savedProducts.indexOf(product)})">Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Add some example products
+const exampleProducts = [
+    {
+        name: "Chicken Breast", 
+        store: "Walmart", 
+        regularPrice: 5.99,
+        weight: 454, 
+        proteinPer100g: 31, 
+        proteinUnit: 'g',
+        category: 'other'
+    },
+    {name: "Canned Tuna", store: "Costco", regularPrice: 1.99, weight: 142, proteinPer100g: 26, proteinUnit: 'g', category: 'other'},
+    {name: "Whey Protein", store: "GNC", regularPrice: 29.99, weight: 908, proteinPer100g: 80, proteinUnit: 'g', category: 'other'},
+    {name: "Egg Whites", store: "Target", regularPrice: 3.99, weight: 500, proteinPer100g: 11, proteinUnit: 'g', category: 'other'},
+    {name: "Greek Yogurt", store: "Kroger", regularPrice: 4.99, weight: 500, proteinPer100g: 10, proteinUnit: 'g', category: 'cheese'}
+];
+
+exampleProducts.forEach(product => {
+    const totalProtein = (product.weight * product.proteinPer100g) / 100;
+    product.totalProtein = totalProtein;
+    product.regularPricePer100gProtein = (product.regularPrice / totalProtein) * 100;
+    product.regularPricePer100g = (product.regularPrice / product.weight) * 100;
+    savedProducts.push(product);
+});
+
+savedProducts.sort((a, b) => a.regularPricePer100gProtein - b.regularPricePer100gProtein);
+displayResults();
+displayTopDeals();
+document.getElementById('savedItems').style.display = 'none';
+
+// Modify the proteinUnit change handler
+document.getElementById('proteinUnit').addEventListener('change', function() {
+    const baseWeightInput = document.getElementById('proteinBaseWeight');
+    baseWeightInput.style.display = this.value === 'custom' ? 'inline' : 'none';
+    if (this.value === 'custom') {
+        baseWeightInput.value = '100';
+    }
+});
+
+function updatePriceInputs(mode) {
+    priceInputMode = mode;
+    const per100gInput = document.getElementById('per100gPriceInput');
+    const totalInputs = document.getElementById('totalPriceInputs');
+    const buttons = document.querySelectorAll('.price-toggle-btn');
+
+    // Toggle input fields visibility
+    if (mode === 'per100g') {
+        per100gInput.style.display = 'block';
+        totalInputs.style.display = 'none';
+        // Clear total price inputs
+        document.getElementById('price').value = '';
+        document.getElementById('weight').value = '';
+    } else {
+        per100gInput.style.display = 'none';
+        totalInputs.style.display = 'block';
+        // Clear per100g input
+        document.getElementById('pricePer100g').value = '';
+    }
+
+    // Update button active states
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if ((mode === 'per100g' && btn.textContent === 'Price per 100g') ||
+            (mode === 'total' && btn.textContent === 'Total Price & Weight')) {
+            btn.classList.add('active');
+        }
+    });
+}
+</script>
+</body>
+</html>
